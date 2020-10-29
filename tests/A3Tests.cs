@@ -6,6 +6,7 @@ using AutoFixture.Xunit2;
 using FluentAssertions;
 using Moq;
 using System;
+using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using Xunit;
@@ -44,6 +45,20 @@ namespace A3.Tests
             .Arrange(setup => setup.AddMock<WidgetFactory>(m => m.Setup(x => x.Create(It.IsAny<string>(), It.IsAny<Widget>())).Returns(new Widget())))
             .Act(sut => (Task)sut.ExecuteAsync())
             .Assert(context => context.Mock<WidgetFactory>().Verify(x => x.Create(It.IsAny<string>(), It.IsAny<Widget>()), Times.Once));
+
+        [Fact]
+        public Task CanAssertTaskOfTAsync()
+            => A3<Widget>
+            .Arrange(setup => { })
+            .Act(sut => sut.Awaiting(x => x.EnumerateAsync().ToListAsync()))
+            .Assert((context, result) => result.Should().CompleteWithinAsync(TimeSpan.FromSeconds(5)));
+
+        [Fact]
+        public Task CanAssertTaskAsync()
+            => A3<Widget>
+            .Arrange(setup => { })
+            .Act(sut => sut.Awaiting(x => Task.CompletedTask))
+            .Assert((context, result) => result.Should().CompleteWithinAsync(TimeSpan.FromSeconds(5)));
 
         [Fact]
         public void CanUseAutoFixtureToCreateSut()

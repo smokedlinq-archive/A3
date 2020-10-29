@@ -1,6 +1,7 @@
 ﻿using Moq;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace A3.Assert
 {
@@ -12,6 +13,9 @@ namespace A3.Assert
             => context = new AssertContext(mocks);
 
         public void Assert(Action<AssertContext> assert)
+            => assert(context);
+
+        public Task Assert(Func<AssertContext, Task> assert)
             => assert(context);
 
     }
