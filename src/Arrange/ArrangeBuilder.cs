@@ -24,10 +24,30 @@ namespace A3.Arrange
         public ArrangeBuilder<T> AddMock<TMock>(Action<Mock<TMock>> setup)
             where TMock : class
         {
-            var mock = Fixture.Create<Mock<TMock>>();
+            var mock = GetOrAddMock<TMock>();
             setup(mock);
-            mocks.Add(mock);
             return this;
+        }
+
+        public ArrangeBuilder<T> AddMock<TMock>()
+            where TMock : class
+        {
+            _ = GetOrAddMock<TMock>();
+            return this;
+        }
+
+        private Mock<TMock> GetOrAddMock<TMock>()
+            where TMock : class
+        {
+            var mock = (Mock<TMock>)mocks.FirstOrDefault(x => x is Mock<TMock>);
+
+            if (mock is null)
+            {
+                mock = Fixture.Create<Mock<TMock>>();
+                mocks.Add(mock);
+            }
+
+            return mock;
         }
 
         public ArrangeBuilder<T> UseSutConstructor(Func<Type, ConstructorInfo> selector)

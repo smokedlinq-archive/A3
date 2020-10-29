@@ -16,6 +16,13 @@ namespace A3.Tests
     public class A3Tests
     {
         [Fact]
+        public void CanArrangeAndAssertMockWithoutSetup()
+            => A3<WidgetService>
+            .Arrange(setup => setup.AddMock<WidgetFactory>())
+            .Act(sut => { /* NOOP */ })
+            .Assert(context => context.Mock<WidgetFactory>().Verify(x => x.Create(It.IsAny<string>(), It.IsAny<Widget>())));
+
+        [Fact]
         public void CanAssertResult()
             => A3<WidgetService>
             .Arrange(setup => setup.AddMock<WidgetFactory>(m => m.Setup(x => x.Create(It.IsAny<string>(), It.IsAny<Widget>())).Returns(new Widget())))
