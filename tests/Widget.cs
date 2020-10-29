@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace A3.Tests
@@ -38,5 +39,17 @@ namespace A3.Tests
 
         public virtual bool Execute()
             => !(parent is null);
+
+        public async IAsyncEnumerable<Widget> EnumerateAsync()
+        {
+            await Task.CompletedTask.ConfigureAwait(false);
+            var current = this;
+
+            while (!(current is null))
+            {
+                yield return current;
+                current = current.parent;
+            }
+        }
     }
 }
