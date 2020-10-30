@@ -118,7 +118,7 @@ namespace A3.Tests
         public void WhenActSutFactoryThrowsThenShouldThrowActException()
             => A3<Widget>
             .Arrange(setup => { })
-            .Act(sut => new Action(() => A3<object>.Arrange(setup => setup.Sut(context => { throw new Exception(); })).Act(_ => { })))
+            .Act(sut => new Action(() => A3<object>.Arrange(setup => setup.Sut((Func<ArrangeContext, object>)(context => { throw new Exception(); }))).Act(_ => { })))
             .Assert((context, result) => result.Should().Throw<ActException>());
 
         [Fact]
