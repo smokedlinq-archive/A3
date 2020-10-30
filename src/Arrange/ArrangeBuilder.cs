@@ -15,13 +15,14 @@ namespace A3.Arrange
     {
         private readonly List<Func<ArrangeContext, T>> factory = new List<Func<ArrangeContext, T>>();
         private readonly List<Mock> mocks = new List<Mock>();
+        private readonly List<SutParameter> parameter = new List<SutParameter>();
 
         internal ArrangeBuilder(ConstructorInfo constructor)
             => factory.Add(CreateConstructorSutFactory(constructor));
 
         public IFixture Fixture { get; } = new Fixture().Customize(new AutoMoqCustomization());
 
-        public ArrangeBuilder<T> AddMock<TMock>(Action<Mock<TMock>> setup)
+        public ArrangeBuilder<T> Mock<TMock>(Action<Mock<TMock>> setup)
             where TMock : class
         {
             var mock = GetOrAddMock<TMock>();
@@ -29,7 +30,7 @@ namespace A3.Arrange
             return this;
         }
 
-        public ArrangeBuilder<T> AddMock<TMock>()
+        public ArrangeBuilder<T> Mock<TMock>()
             where TMock : class
         {
             _ = GetOrAddMock<TMock>();
@@ -50,22 +51,28 @@ namespace A3.Arrange
             return mock;
         }
 
-        public ArrangeBuilder<T> UseSutConstructor(Func<Type, ConstructorInfo> selector)
+        public ArrangeBuilder<T> SutConstructor(Func<Type, ConstructorInfo> selector)
         {
             _ = selector ?? throw new ArgumentNullException(nameof(selector));
             factory.Add(CreateConstructorSutFactory(selector(typeof(T))));
             return this;
         }
 
-        public ArrangeBuilder<T> UseSut(Func<ArrangeContext, T> factory)
+        public ArrangeBuilder<T> Sut(Func<ArrangeContext, T> factory)
         {
             _ = factory ?? throw new ArgumentNullException(nameof(factory));
             this.factory.Add(factory);
             return this;
         }
 
+        public ArrangeBuilder<T> Parameter<TParameter>(TParameter parameter)
+        {
+            this.parameter.Add(new SutParameter(typeof(TParameter), parameter));
+            return this;
+        }
+
         internal ActStep<T> Build()
-            => new ActStep<T>(() => factory.Last().Invoke(new ArrangeContext(Fixture, mocks)), mocks);
+            => new ActStep<T>(() => factory.Last().Invoke(new ArrangeContext(Fixture, mocks)), parameter.LastOrDefault(), mocks);
 
         private static Func<ArrangeContext, T> CreateConstructorSutFactory(ConstructorInfo constructor)
         {
@@ -79,9 +86,9 @@ namespace A3.Arrange
 
                 for (var i = 0; i < parameters.Length; i++)
                 {
-                    var parameter = parameters[i];
+                    var ctorParameter = parameters[i];
 
-                    if (context.TryGetMock(parameter.ParameterType, out var mock))
+                    if (context.TryGetMock(ctorParameter.ParameterType, out var mock))
                     {
                         args[i] = mock.Object;
                     }
@@ -89,11 +96,11 @@ namespace A3.Arrange
                     {
                         try
                         {
-                            args[i] = fixture.Resolve(parameter.ParameterType);
+                            args[i] = fixture.Resolve(ctorParameter.ParameterType);
                         }
                         catch (ObjectCreationException)
                         {
-                            args[i] = ((Mock)fixture.Resolve(typeof(Mock<>).MakeGenericType(parameter.ParameterType))).Object;
+                            args[i] = ((Mock)fixture.Resolve(typeof(Mock<>).MakeGenericType(ctorParameter.ParameterType))).Object;
                         }
                     }
                 }

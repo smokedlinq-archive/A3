@@ -18,21 +18,21 @@ namespace A3.Tests
         [Fact]
         public void CanArrangeAndAssertMockWithoutSetup()
             => A3<WidgetService>
-            .Arrange(setup => setup.AddMock<WidgetFactory>())
+            .Arrange(setup => setup.Mock<WidgetFactory>())
             .Act(sut => { /* NOOP */ })
             .Assert(context => context.Mock<WidgetFactory>().Verify(x => x.Create(It.IsAny<string>(), It.IsAny<Widget>())));
 
         [Fact]
         public void CanAssertResult()
             => A3<WidgetService>
-            .Arrange(setup => setup.AddMock<WidgetFactory>(m => m.Setup(x => x.Create(It.IsAny<string>(), It.IsAny<Widget>())).Returns(new Widget())))
+            .Arrange(setup => setup.Mock<WidgetFactory>(m => m.Setup(x => x.Create(It.IsAny<string>(), It.IsAny<Widget>())).Returns(new Widget())))
             .Act(sut => sut.Execute())
             .Assert((context, result) => result.Should().BeFalse());
 
         [Fact]
         public void CanAssertMock()
             => A3<WidgetService>
-            .Arrange(setup => setup.AddMock<WidgetFactory>(m => m.Setup(x => x.Create(It.IsAny<string>(), It.IsAny<Widget>())).Returns(new Widget())))
+            .Arrange(setup => setup.Mock<WidgetFactory>(m => m.Setup(x => x.Create(It.IsAny<string>(), It.IsAny<Widget>())).Returns(new Widget())))
             .Act(sut =>
             {
                 _ = sut.Execute();
@@ -42,14 +42,14 @@ namespace A3.Tests
         [Fact]
         public Task CanAssertResultAsync()
             => A3<WidgetService>
-            .Arrange(setup => setup.AddMock<WidgetFactory>(m => m.Setup(x => x.Create(It.IsAny<string>(), It.IsAny<Widget>())).Returns(new Widget())))
+            .Arrange(setup => setup.Mock<WidgetFactory>(m => m.Setup(x => x.Create(It.IsAny<string>(), It.IsAny<Widget>())).Returns(new Widget())))
             .Act(sut => sut.ExecuteAsync())
             .Assert((context, result) => result.Should().BeFalse());
 
         [Fact]
         public Task CanAssertMockAsync()
             => A3<WidgetService>
-            .Arrange(setup => setup.AddMock<WidgetFactory>(m => m.Setup(x => x.Create(It.IsAny<string>(), It.IsAny<Widget>())).Returns(new Widget())))
+            .Arrange(setup => setup.Mock<WidgetFactory>(m => m.Setup(x => x.Create(It.IsAny<string>(), It.IsAny<Widget>())).Returns(new Widget())))
             .Act(sut => (Task)sut.ExecuteAsync())
             .Assert(context => context.Mock<WidgetFactory>().Verify(x => x.Create(It.IsAny<string>(), It.IsAny<Widget>()), Times.Once));
 
@@ -79,7 +79,7 @@ namespace A3.Tests
                     return mock.Object;
                 });
 
-                setup.UseSut(context => context.Fixture.Create<Widget>());
+                setup.Sut(context => context.Fixture.Create<Widget>());
             })
             .Act(sut => sut.Invoking(x => x.Execute()))
             .Assert((context, result) => result.Should().Throw<Exception>());
@@ -96,7 +96,7 @@ namespace A3.Tests
         [AutoData]
         public void CanProviderCustomSutFactory(string widgetName, Widget parent)
             => A3<Widget>
-            .Arrange(setup => setup.UseSut(context => new Widget(widgetName, parent)))
+            .Arrange(setup => setup.Sut(context => new Widget(widgetName, parent)))
             .Act(sut => sut.Name)
             .Assert((context, result) => result.Should().Be($"{parent.Name}.{widgetName}"));
 
@@ -118,7 +118,7 @@ namespace A3.Tests
         public void WhenActSutFactoryThrowsThenShouldThrowActException()
             => A3<Widget>
             .Arrange(setup => { })
-            .Act(sut => new Action(() => A3<object>.Arrange(setup => setup.UseSut(context => { throw new Exception(); })).Act(_ => { })))
+            .Act(sut => new Action(() => A3<object>.Arrange(setup => setup.Sut(context => { throw new Exception(); })).Act(_ => { })))
             .Assert((context, result) => result.Should().Throw<ActException>());
 
         [Fact]
@@ -127,5 +127,33 @@ namespace A3.Tests
             .Arrange(setup => { })
             .Act(sut => new Action(() => A3<object>.Arrange(_ => { }).Act(_ => { }).Assert(context => context.Mock<WidgetFactory>())))
             .Assert((context, result) => result.Should().Throw<AssertException>());
+
+        [Fact]
+        public void CanPassParameterToAct()
+            => A3<Widget>
+            .Arrange(setup => setup.Parameter(nameof(Widget)))
+            .Act((Widget sut, string parameter) => { parameter.Should().NotBeNullOrEmpty(); })
+            .Assert(context => true.Should().BeTrue());
+
+        [Fact]
+        public void CanPassParameterToActWithResult()
+            => A3<Widget>
+            .Arrange(setup => setup.Parameter(nameof(Widget)))
+            .Act((Widget sut, string parameter) => sut.Name == parameter)
+            .Assert((context, result) => result.Should().BeTrue());
+
+        [Fact]
+        public Task CanPassParameterToActAsync()
+            => A3<Widget>
+            .Arrange(setup => setup.Parameter(nameof(Widget)))
+            .Act((Widget sut, string parameter) => { Task.FromResult(parameter.Should().NotBeNullOrEmpty()); })
+            .Assert(context => Task.CompletedTask);
+
+        [Fact]
+        public Task CanPassParameterToActWithResultAsync()
+            => A3<Widget>
+            .Arrange(setup => setup.Parameter(nameof(Widget)))
+            .Act((Widget sut, string parameter) => Task.FromResult(sut.Name == parameter))
+            .Assert((context, result) => result.Should().BeTrue());
     }
 }
