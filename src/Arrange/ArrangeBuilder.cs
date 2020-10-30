@@ -1,6 +1,6 @@
 ﻿using A3.Act;
+using A3.Fixtures;
 using AutoFixture;
-using AutoFixture.AutoMoq;
 using AutoFixture.Kernel;
 using Moq;
 using System;
@@ -20,7 +20,7 @@ namespace A3.Arrange
         internal ArrangeBuilder(ConstructorInfo? constructor)
             => factory.Add(context => CreateConstructorSutFactory(context, constructor));
 
-        public IFixture Fixture { get; } = new Fixture().Customize(new AutoMoqCustomization());
+        public IFixture Fixture { get; } = new Fixture().Customize(new AutoFixtureCustomization());
 
         public ArrangeBuilder<T> Mock<TMock>(Action<Mock<TMock>> setup)
             where TMock : class
