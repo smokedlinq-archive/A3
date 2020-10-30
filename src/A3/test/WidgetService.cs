@@ -7,10 +7,10 @@ namespace A3.Tests
     {
         private readonly Widget widget;
 
-        public WidgetService(WidgetFactory factory, Widget widget = null)
+        public WidgetService(WidgetFactory factory, Widget? widget = null)
             => this.widget = (factory ?? throw new ArgumentNullException(nameof(factory))).Create(null, widget);
 
-        public string Name => widget.Name;
+        public string? Name => widget.Name;
 
         public Task<bool> ExecuteAsync()
             => widget.ExecuteAsync();

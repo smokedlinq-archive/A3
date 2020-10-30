@@ -6,22 +6,22 @@ namespace A3.Tests
 {
     public class Widget : WidgetBase
     {
-        private readonly string name;
-        private readonly Widget parent;
+        private readonly string? name;
+        private readonly Widget? parent;
 
         public Widget()
             : this(null)
         {
         }
 
-        private Widget(string name)
+        public Widget(string? name)
             => this.name = name ?? nameof(Widget);
 
-        internal Widget(string name, Widget parent)
+        internal Widget(string? name, Widget parent)
             : this(name)
             => this.parent = parent ?? throw new ArgumentNullException(nameof(parent));
 
-        public virtual string Name
+        public virtual string? Name
         {
             get
             {

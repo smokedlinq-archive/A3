@@ -6,7 +6,7 @@ using System.Linq.Expressions;
 
 namespace A3.Fixtures
 {
-    internal class AutoFixtureCustomization : ICustomization
+    public class AutoFixtureCustomization : ICustomization
     {
         public void Customize(IFixture fixture)
         {

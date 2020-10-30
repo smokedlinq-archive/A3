@@ -147,7 +147,7 @@ namespace A3.Tests
         [Fact]
         public void CanUseSpecificSutConstructor()
             => A3<Widget>
-            .Constructor(type => type.GetConstructor(BindingFlags.NonPublic | BindingFlags.Instance, null, new[] { typeof(string) }, null))
+            .Constructor(type => type.GetConstructor(BindingFlags.Public | BindingFlags.Instance, null, new[] { typeof(string) }, null))
             .Arrange(setup => { })
             .Act(sut => sut.Name)
             .Assert((context, result) => result.Should().NotBeNullOrEmpty());

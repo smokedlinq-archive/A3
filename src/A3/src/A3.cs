@@ -15,7 +15,7 @@ namespace A3
         public static ActStep<T> Arrange(Action<ArrangeBuilder<T>> arrange)
             => new ArrangeStep<T>(typeof(T).GetConstructors(BindingFlags.Public | BindingFlags.Instance).FirstOrDefault()).Arrange(arrange);
 
-        public static ArrangeStep<T> Constructor(Func<Type, ConstructorInfo> selector)
+        public static ArrangeStep<T> Constructor(Func<Type, ConstructorInfo?> selector)
             => new ArrangeStep<T>(selector(typeof(T)));
     }
 }

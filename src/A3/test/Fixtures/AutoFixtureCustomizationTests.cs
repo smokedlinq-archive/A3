@@ -22,7 +22,7 @@ namespace A3.Tests.Fixtures
 
         public class WidgetFixture
         {
-            public string Name { get; set; }
+            public string? Name { get; set; }
         }
 
         public class WidgetFixtureCustomization : ICustomizeFixture<WidgetFixture>, ICustomizeFixture<string>
