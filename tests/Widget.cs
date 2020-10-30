@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace A3.Tests
 {
-    public class Widget
+    public class Widget : WidgetBase
     {
         private readonly string name;
         private readonly Widget parent;

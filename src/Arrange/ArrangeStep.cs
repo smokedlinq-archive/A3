@@ -8,10 +8,10 @@ namespace A3.Arrange
         where T : class
     {
 
-        private readonly ConstructorInfo constructor;
+        private readonly ConstructorInfo? constructor;
 
-        internal ArrangeStep(ConstructorInfo constructor)
-            => this.constructor = constructor ?? throw new ArgumentNullException(nameof(constructor));
+        internal ArrangeStep(ConstructorInfo? constructor)
+            => this.constructor = constructor;
 
         public ActStep<T> Arrange(Action<ArrangeBuilder<T>> arrange)
         {

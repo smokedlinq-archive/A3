@@ -1,4 +1,5 @@
-﻿using A3.Assert;
+﻿using A3.Arrange;
+using A3.Assert;
 using Moq;
 using System;
 using System.Collections.Generic;
@@ -73,6 +74,10 @@ namespace A3.Act
                 var sut = CreateSut();
                 return act(sut, (TParameter)parameter?.Value!);
             }
+            catch (ArrangeException)
+            {
+                throw;
+            }
             catch (ActException)
             {
                 throw;
@@ -87,6 +92,10 @@ namespace A3.Act
                 try
                 {
                     return factory();
+                }
+                catch (ArrangeException)
+                {
+                    throw;
                 }
                 catch (Exception ex)
                 {

@@ -16,6 +16,66 @@ namespace A3.Tests
     public class A3Tests
     {
         [Fact]
+        public void WhenTIsInterfaceArrangeDoesNotThrow()
+        {
+            // Arrange
+            // Act
+            var result = this.Invoking(_ => A3<IWidget>.Arrange(setup => { }));
+            // Assert
+            result.Should().NotThrow();
+        }
+
+        [Fact]
+        public void WhenTIsInterfaceAndSutIsExplicitlyDefinedInArrangeThenActDoesNotThrow()
+        {
+            // Arrange
+            // Act
+            var result = this.Invoking(_ => A3<IWidget>.Arrange(setup => setup.Sut(_ => new Widget())).Act(_ => { }));
+            // Assert
+            result.Should().NotThrow();
+        }
+
+        [Fact]
+        public void WhenTIsInterfaceAndSutIsNotExplicitedDefinedInArrangeThenActShouldThrowArrangeException()
+        {
+            // Arrange
+            // Act
+            var result = this.Invoking(_ => A3<IWidget>.Arrange(setup => { }).Act(_ => { }));
+            // Assert
+            result.Should().Throw<ArrangeException>();
+        }
+
+        [Fact]
+        public void WhenTIsAbstractArrangeDoesNotThrow()
+        {
+            // Arrange
+            // Act
+            var result = this.Invoking(_ => A3<WidgetBase>.Arrange(setup => { }));
+            // Assert
+            result.Should().NotThrow();
+        }
+
+        [Fact]
+        public void WhenTIsAbstractAndSutIsExplicitlyDefinedInArrangeThenActDoesNotThrow()
+        {
+            // Arrange
+            // Act
+            var result = this.Invoking(_ => A3<WidgetBase>.Arrange(setup => setup.Sut(_ => new Widget())).Act(_ => { }));
+            // Assert
+            result.Should().NotThrow();
+        }
+
+        [Fact]
+        public void WhenTIsAbstractAndSutIsNotExplicitedDefinedInArrangeThenActShouldThrowArrangeException()
+        {
+            // Arrange
+            // Act
+            var result = this.Invoking(_ => A3<WidgetBase>.Arrange(setup => { }).Act(_ => { }));
+            // Assert
+            result.Should().Throw<ArrangeException>();
+        }
+
+        [Fact]
         public void CanArrangeAndAssertMockWithoutSetup()
             => A3<WidgetService>
             .Arrange(setup => setup.Mock<WidgetFactory>())
