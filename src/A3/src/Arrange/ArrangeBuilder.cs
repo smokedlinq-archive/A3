@@ -1,7 +1,5 @@
 ﻿using A3.Act;
-using A3.Fixtures;
 using AutoFixture;
-using AutoFixture.Kernel;
 using Moq;
 using System;
 using System.Collections.Generic;
@@ -17,10 +15,13 @@ namespace A3.Arrange
         private readonly List<Mock> mocks = new List<Mock>();
         private readonly List<SutParameter> parameter = new List<SutParameter>();
 
-        internal ArrangeBuilder(ConstructorInfo? constructor)
-            => factory.Add(context => CreateConstructorSutFactory(context, constructor));
+        internal ArrangeBuilder(Func<ArrangeContext, T> factory, ArrangeOptions options)
+        {
+            this.factory.Add(factory);
+            Fixture = new Fixture().Customize(new AutoFixtureCustomization(scope: options.AutoFixtureCustomizationScope));
+        }
 
-        public IFixture Fixture { get; } = new Fixture().Customize(new AutoFixtureCustomization());
+        public IFixture Fixture { get; }
 
         public ArrangeBuilder<T> Mock<TMock>(Action<Mock<TMock>> setup)
             where TMock : class
@@ -54,7 +55,7 @@ namespace A3.Arrange
         public ArrangeBuilder<T> Sut(Func<Type, ConstructorInfo?> selector)
         {
             _ = selector ?? throw new ArgumentNullException(nameof(selector));
-            factory.Add(context => CreateConstructorSutFactory(context, selector(typeof(T))));
+            factory.Add(context => ArrangeSutFactory<T>.Create(context, selector(typeof(T))));
             return this;
         }
 
@@ -73,37 +74,5 @@ namespace A3.Arrange
 
         internal ActStep<T> Build()
             => new ActStep<T>(() => factory.Last().Invoke(new ArrangeContext(Fixture, mocks)), parameter.LastOrDefault(), mocks);
-
-        private static T CreateConstructorSutFactory(ArrangeContext context, ConstructorInfo? constructor)
-        {
-            _ = constructor ?? throw new ArrangeException($"Could not instantiate {typeof(T)}; verify it is not an interface or abstract, or that the Sut is explicitly configured during the arrange step.");
-
-            var parameters = constructor.GetParameters();
-            var args = new object[parameters.Length];
-            var fixture = new SpecimenContext(context.Fixture);
-
-            for (var i = 0; i < parameters.Length; i++)
-            {
-                var ctorParameter = parameters[i];
-
-                if (context.TryGetMock(ctorParameter.ParameterType, out var mock))
-                {
-                    args[i] = mock.Object;
-                }
-                else
-                {
-                    try
-                    {
-                        args[i] = fixture.Resolve(ctorParameter.ParameterType);
-                    }
-                    catch (ObjectCreationException)
-                    {
-                        args[i] = ((Mock)fixture.Resolve(typeof(Mock<>).MakeGenericType(ctorParameter.ParameterType))).Object;
-                    }
-                }
-            }
-
-            return (T)constructor.Invoke(args);
-        }
     }
 }

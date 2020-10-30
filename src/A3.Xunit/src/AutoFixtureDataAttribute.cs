@@ -1,17 +1,16 @@
-﻿using A3.Fixtures;
-using AutoFixture;
+﻿using AutoFixture;
 using AutoFixture.Xunit2;
 
-namespace A3.Xunit
+namespace Xunit
 {
     public class AutoFixtureDataAttribute : AutoDataAttribute
     {
-        public AutoFixtureDataAttribute()
-            : base(() => Customize(new Fixture()))
+        public AutoFixtureDataAttribute(string? scope = null)
+            : base(() => Customize(new Fixture(), scope))
         {
         }
 
-        private static IFixture Customize(IFixture fixture)
-            => fixture.Customize(new AutoFixtureCustomization());
+        private static IFixture Customize(IFixture fixture, string? scope)
+            => fixture.Customize(new AutoFixtureCustomization(scope));
     }
 }

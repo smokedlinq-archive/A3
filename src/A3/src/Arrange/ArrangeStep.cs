@@ -1,6 +1,5 @@
 ﻿using A3.Act;
 using System;
-using System.Reflection;
 
 namespace A3.Arrange
 {
@@ -8,14 +7,18 @@ namespace A3.Arrange
         where T : class
     {
 
-        private readonly ConstructorInfo? constructor;
+        private readonly Func<ArrangeContext, T> factory;
+        private readonly ArrangeOptions options;
 
-        internal ArrangeStep(ConstructorInfo? constructor)
-            => this.constructor = constructor;
+        internal ArrangeStep(Func<ArrangeContext, T> factory, ArrangeOptions options)
+        {
+            this.factory = factory ?? throw new ArgumentNullException(nameof(factory));
+            this.options = options ?? throw new ArgumentNullException(nameof(options));
+        }
 
         public ActStep<T> Arrange(Action<ArrangeBuilder<T>> arrange)
         {
-            var setup = new ArrangeBuilder<T>(constructor);
+            var setup = new ArrangeBuilder<T>(factory, options);
 
             try
             {

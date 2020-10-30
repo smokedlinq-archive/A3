@@ -1,17 +1,30 @@
-﻿using AutoFixture;
-using AutoFixture.AutoMoq;
+﻿using AutoFixture.AutoMoq;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 
-namespace A3.Fixtures
+namespace AutoFixture
 {
     public class AutoFixtureCustomization : ICustomization
     {
+        private static readonly Lazy<IEnumerable<Action<IFixture, string?>>> Customizations = new Lazy<IEnumerable<Action<IFixture, string?>>>(CreateCustomizeFixtureExpressions);
+        private readonly string? scope;
+
+        public AutoFixtureCustomization(string? scope = null)
+            => this.scope = scope;
+
         public void Customize(IFixture fixture)
         {
             fixture.Customize(new AutoMoqCustomization());
+            foreach (var customization in Customizations.Value)
+            {
+                customization(fixture, scope);
+            }
+        }
 
+        private static IEnumerable<Action<IFixture, string?>> CreateCustomizeFixtureExpressions()
+        {
             var targetAssembly = typeof(AutoFixtureCustomization).Assembly.GetName();
             var assemblies = AppDomain.CurrentDomain.GetAssemblies();
             var assembliesThatReferenceA3 = assemblies.Where(x => x.GetReferencedAssemblies().Any(a => a.FullName == targetAssembly.FullName));
@@ -31,6 +44,7 @@ namespace A3.Fixtures
 
             var fixtureParameter = Expression.Parameter(typeof(IFixture));
             var registerFixtureMethod = typeof(FixtureRegistrar).GetMethods().First(x => x.Name == nameof(FixtureRegistrar.Inject) && x.IsGenericMethod);
+            var scopeParameter = Expression.Parameter(typeof(string));
 
             foreach (var customizer in customizers)
             {
@@ -38,15 +52,22 @@ namespace A3.Fixtures
 
                 foreach (var fixtureType in customizer.FixtureTypes)
                 {
-                    var method = typeof(ICustomizeFixture<>).MakeGenericType(fixtureType).GetMethod(nameof(ICustomizeFixture<object>.Customize));
+                    var customizeFixtureType = typeof(ICustomizeFixture<>).MakeGenericType(fixtureType);
+                    var cutomizeMethod = customizeFixtureType.GetMethod(nameof(ICustomizeFixture<object>.Customize));
 
-                    var call = Expression.Call(instance, method, fixtureParameter);
+                    var call = Expression.Call(instance, cutomizeMethod, fixtureParameter);
 
                     var registerFixture = Expression.Call(registerFixtureMethod.MakeGenericMethod(fixtureType), fixtureParameter, call);
 
-                    var lambda = Expression.Lambda<Action<IFixture>>(registerFixture, fixtureParameter).Compile();
+                    var shouldCustomizeMethod = customizeFixtureType.GetMethod(nameof(ICustomizeFixture<object>.ShouldCustomize));
 
-                    lambda(fixture);
+                    var shouldCustomize = Expression.Call(instance, shouldCustomizeMethod, scopeParameter);
+
+                    var ifShouldCustomize = Expression.IfThen(shouldCustomize, registerFixture);
+
+                    var lambda = Expression.Lambda<Action<IFixture, string?>>(ifShouldCustomize, fixtureParameter, scopeParameter).Compile();
+
+                    yield return lambda;
                 }
             }
         }
