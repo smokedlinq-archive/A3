@@ -16,10 +16,28 @@ namespace A3.Assert
             context = new AssertContext(mocks);
         }
 
-        public async Task Assert(Action<AssertContext, T> assert)
+        public async Task Assert(Action<T> assert)
         {
             var result = await task.ConfigureAwait(false);
-            assert(context, result);
+            assert(result);
+        }
+
+        public async Task Assert(Func<T, Task> assert)
+        {
+            var result = await task.ConfigureAwait(false);
+            await assert(result).ConfigureAwait(false);
+        }
+
+        public async Task Assert(Action<T, AssertContext> assert)
+        {
+            var result = await task.ConfigureAwait(false);
+            assert(result, context);
+        }
+
+        public async Task Assert(Func<T, AssertContext, Task> assert)
+        {
+            var result = await task.ConfigureAwait(false);
+            await assert(result, context).ConfigureAwait(false);
         }
     }
 }

@@ -20,14 +20,14 @@ namespace A3.Tests
             => A3<object>
             .Arrange(setup => setup.Sut(() => new object()))
             .Act(sut => sut)
-            .Assert((_, result) => result.Should().NotBeNull());
+            .Assert(result => result.Should().NotBeNull());
 
         [Fact]
         public void CanInitializeSutWithValue()
             => A3<object>
             .Arrange(setup => setup.Sut(new object()))
             .Act(sut => sut)
-            .Assert((_, result) => result.Should().NotBeNull());
+            .Assert(result => result.Should().NotBeNull());
 
         [Fact]
         public void WhenTIsInterfaceArrangeDoesNotThrow()
@@ -101,7 +101,7 @@ namespace A3.Tests
             => A3<WidgetService>
             .Arrange(setup => setup.Mock<WidgetFactory>(m => m.Setup(x => x.Create(It.IsAny<string>(), It.IsAny<Widget>())).Returns(new Widget())))
             .Act(sut => sut.Execute())
-            .Assert((context, result) => result.Should().BeFalse());
+            .Assert(result => result.Should().BeFalse());
 
         [Fact]
         public void CanAssertMock()
@@ -118,7 +118,7 @@ namespace A3.Tests
             => A3<WidgetService>
             .Arrange(setup => setup.Mock<WidgetFactory>(m => m.Setup(x => x.Create(It.IsAny<string>(), It.IsAny<Widget>())).Returns(new Widget())))
             .Act(sut => sut.ExecuteAsync())
-            .Assert((context, result) => result.Should().BeFalse());
+            .Assert(result => result.Should().BeFalse());
 
         [Fact]
         public Task CanAssertMockAsync()
@@ -132,14 +132,14 @@ namespace A3.Tests
             => A3<Widget>
             .Arrange(setup => { })
             .Act(sut => sut.Awaiting(x => x.EnumerateAsync().ToListAsync()))
-            .Assert((context, result) => result.Should().CompleteWithinAsync(TimeSpan.FromSeconds(5)));
+            .Assert(result => result.Should().CompleteWithinAsync(TimeSpan.FromSeconds(5)));
 
         [Fact]
         public void CanUseAutoFixtureToCreateSut()
             => A3<WidgetService>
             .Arrange(setup => setup.Fixture.Register(() => new WidgetFactory()))
             .Act(sut => sut.Execute())
-            .Assert((context, result) => result.Should().BeTrue());
+            .Assert(result => result.Should().BeTrue());
 
         [Fact]
         public void CanUseAutoFixtureToCreateMockForSut()
@@ -156,7 +156,7 @@ namespace A3.Tests
                 setup.Sut(context => context.Fixture.Create<Widget>());
             })
             .Act(sut => sut.Invoking(x => x.Execute()))
-            .Assert((context, result) => result.Should().Throw<Exception>());
+            .Assert(result => result.Should().Throw<Exception>());
 
         [Fact]
         public void CanUseSpecificSutConstructor()
@@ -164,7 +164,7 @@ namespace A3.Tests
             .Constructor(type => type.GetConstructor(BindingFlags.Public | BindingFlags.Instance, null, new[] { typeof(string) }, null))
             .Arrange(setup => { })
             .Act(sut => sut.Name)
-            .Assert((context, result) => result.Should().NotBeNullOrEmpty());
+            .Assert((result, context) => result.Should().NotBeNullOrEmpty());
 
         [Theory]
         [AutoData]
@@ -172,35 +172,35 @@ namespace A3.Tests
             => A3<Widget>
             .Arrange(setup => setup.Sut(context => new Widget(widgetName, parent)))
             .Act(sut => sut.Name)
-            .Assert((context, result) => result.Should().Be($"{parent.Name}.{widgetName}"));
+            .Assert(result => result.Should().Be($"{parent.Name}.{widgetName}"));
 
         [Fact]
         public void WhenArrangeThrowsThenShouldThrowArrangeException()
             => A3<Widget>
             .Arrange(setup => { })
             .Act(sut => new Action(() => A3<object>.Arrange(setup => { throw new Exception(); })))
-            .Assert((context, result) => result.Should().Throw<ArrangeException>());
+            .Assert(result => result.Should().Throw<ArrangeException>());
 
         [Fact]
         public void WhenActThrowsThenShouldThrowActException()
             => A3<Widget>
             .Arrange(setup => { })
             .Act(sut => new Action(() => A3<object>.Arrange(_ => { }).Act(_ => { throw new Exception(); })))
-            .Assert((context, result) => result.Should().Throw<ActException>());
+            .Assert(result => result.Should().Throw<ActException>());
 
         [Fact]
         public void WhenActSutFactoryThrowsThenShouldThrowActException()
             => A3<Widget>
             .Arrange(setup => { })
             .Act(sut => new Action(() => A3<object>.Arrange(setup => setup.Sut((Func<ArrangeContext, object>)(context => { throw new Exception(); }))).Act(_ => { })))
-            .Assert((context, result) => result.Should().Throw<ActException>());
+            .Assert(result => result.Should().Throw<ActException>());
 
         [Fact]
         public void WhenMockDoesNotExistThenShouldThrowAssertException()
             => A3<Widget>
             .Arrange(setup => { })
             .Act(sut => new Action(() => A3<object>.Arrange(_ => { }).Act(_ => { }).Assert(context => context.Mock<WidgetFactory>())))
-            .Assert((context, result) => result.Should().Throw<AssertException>());
+            .Assert(result => result.Should().Throw<AssertException>());
 
         [Fact]
         public void CanPassParameterToAct()
@@ -214,7 +214,7 @@ namespace A3.Tests
             => A3<Widget>
             .Arrange(setup => setup.Parameter(nameof(Widget)))
             .Act((Widget sut, string parameter) => sut.Name == parameter)
-            .Assert((context, result) => result.Should().BeTrue());
+            .Assert(result => result.Should().BeTrue());
 
         [Fact]
         public Task CanPassParameterToActAsync()
@@ -228,6 +228,6 @@ namespace A3.Tests
             => A3<Widget>
             .Arrange(setup => setup.Parameter(nameof(Widget)))
             .Act((Widget sut, string parameter) => Task.FromResult(sut.Name == parameter))
-            .Assert((context, result) => result.Should().BeTrue());
+            .Assert(result => result.Should().BeTrue());
     }
 }

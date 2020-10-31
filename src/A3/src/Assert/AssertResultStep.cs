@@ -16,10 +16,16 @@ namespace A3.Assert
             this.context = new AssertContext(mocks);
         }
 
-        public void Assert(Action<AssertContext, T> assert)
-            => assert(context, result);
+        public void Assert(Action<T> assert)
+            => assert(result);
 
-        public Task Assert(Func<AssertContext, T, Task> assert)
-            => assert(context, result);
+        public Task Assert(Func<T, Task> assert)
+            => assert(result);
+
+        public void Assert(Action<T, AssertContext> assert)
+            => assert(result, context);
+
+        public Task Assert(Func<T, AssertContext, Task> assert)
+            => assert(result, context);
     }
 }

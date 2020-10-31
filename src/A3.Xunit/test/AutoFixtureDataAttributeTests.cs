@@ -12,7 +12,7 @@ namespace A3.Xunit.Tests
             => A3<string>
             .Arrange(setup => setup.Sut(_ => value))
             .Act(sut => sut)
-            .Assert((context, result) => result.Should().Be(nameof(StringFixtureCustomization)));
+            .Assert(result => result.Should().Be(nameof(StringFixtureCustomization)));
 
         public class StringFixtureCustomization : ICustomizeFixture<string>
         {

@@ -11,21 +11,21 @@ namespace A3.Tests.Fixtures
             => A3<IFixture>
             .Arrange(setup => setup.Sut(context => (Fixture)context.Fixture))
             .Act(sut => sut.Create<WidgetFixture>())
-            .Assert((context, result) => result.Name.Should().Be(nameof(WidgetFixture)));
+            .Assert(result => result.Name.Should().Be(nameof(WidgetFixture)));
 
         [Fact]
         public void SupportsMultipleImplementationsOnTheSameType()
             => A3<IFixture>
             .Arrange(setup => setup.Sut(context => (Fixture)context.Fixture))
             .Act(sut => sut.Create<string>())
-            .Assert((context, result) => result.Should().Be(nameof(WidgetFixtureCustomization.Customize)));
+            .Assert(result => result.Should().Be(nameof(WidgetFixtureCustomization.Customize)));
 
         [Fact]
         public void SupportsScopedCustomizeFixtureImplementations()
             => A3<IFixture>
             .Arrange(setup => setup.Sut(context => new Fixture().Customize(new AutoFixtureCustomization(nameof(ScopedWidgetFixtureCustomization)))))
             .Act(sut => sut.Create<WidgetFixture>())
-            .Assert((context, result) => result.Name.Should().Be(nameof(ScopedWidgetFixtureCustomization)));
+            .Assert(result => result.Name.Should().Be(nameof(ScopedWidgetFixtureCustomization)));
 
         public class WidgetFixture
         {
