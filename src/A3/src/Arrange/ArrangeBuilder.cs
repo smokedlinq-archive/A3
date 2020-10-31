@@ -31,12 +31,9 @@ namespace A3.Arrange
             return this;
         }
 
-        public ArrangeBuilder<T> Mock<TMock>()
+        public Mock<TMock> Mock<TMock>()
             where TMock : class
-        {
-            _ = GetOrAddMock<TMock>();
-            return this;
-        }
+            => GetOrAddMock<TMock>();
 
         private Mock<TMock> GetOrAddMock<TMock>()
             where TMock : class
