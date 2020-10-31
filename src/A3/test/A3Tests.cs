@@ -16,6 +16,20 @@ namespace A3.Tests
     public class A3Tests
     {
         [Fact]
+        public void CanInitializeSutWithFactory()
+            => A3<object>
+            .Arrange(setup => setup.Sut(() => new object()))
+            .Act(sut => sut)
+            .Assert((_, result) => result.Should().NotBeNull());
+
+        [Fact]
+        public void CanInitializeSutWithValue()
+            => A3<object>
+            .Arrange(setup => setup.Sut(new object()))
+            .Act(sut => sut)
+            .Assert((_, result) => result.Should().NotBeNull());
+
+        [Fact]
         public void WhenTIsInterfaceArrangeDoesNotThrow()
         {
             // Arrange

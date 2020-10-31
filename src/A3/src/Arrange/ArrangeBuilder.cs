@@ -63,6 +63,20 @@ namespace A3.Arrange
             return this;
         }
 
+        public ArrangeBuilder<T> Sut(Func<T> factory)
+        {
+            _ = factory ?? throw new ArgumentNullException(nameof(factory));
+            this.factory.Add(_ => factory());
+            return this;
+        }
+
+        public ArrangeBuilder<T> Sut(T sut)
+        {
+            _ = sut ?? throw new ArgumentNullException(nameof(sut));
+            this.factory.Add(_ => sut);
+            return this;
+        }
+
         public ArrangeBuilder<T> Parameter<TParameter>(TParameter parameter)
         {
             this.parameter.Add(new SutParameter(typeof(TParameter), parameter));
