@@ -12,13 +12,6 @@ namespace A3.Tests
     public class AssertStepTests
     {
         [Fact]
-        public void CanArrangeAndAssertMockWithoutSetup()
-            => A3<WidgetService>
-            .Arrange(setup => setup.Mock<WidgetFactory>())
-            .Act(sut => { /* NOOP */ })
-            .Assert(context => context.Mock<WidgetFactory>().Verify(x => x.Create(It.IsAny<string>(), It.IsAny<Widget>())));
-
-        [Fact]
         public void CanAssertResult()
             => A3<WidgetService>
             .Arrange(setup => setup.Mock<WidgetFactory>(m => m.Setup(x => x.Create(It.IsAny<string>(), It.IsAny<Widget>())).Returns(new Widget())))
@@ -26,7 +19,14 @@ namespace A3.Tests
             .Assert(result => result.Should().BeFalse());
 
         [Fact]
-        public void CanAssertMock()
+        public void CanAssertMockThatIsUnconfigured()
+            => A3<WidgetService>
+            .Arrange(setup => setup.Mock<WidgetFactory>())
+            .Act(sut => { /* NOOP */ })
+            .Assert(context => context.Mock<WidgetFactory>().Verify(x => x.Create(It.IsAny<string>(), It.IsAny<Widget>())));
+
+        [Fact]
+        public void CanAssertMockThatIsConfigured()
             => A3<WidgetService>
             .Arrange(setup => setup.Mock<WidgetFactory>(m => m.Setup(x => x.Create(It.IsAny<string>(), It.IsAny<Widget>())).Returns(new Widget())))
             .Act(sut =>
