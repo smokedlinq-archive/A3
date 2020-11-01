@@ -49,7 +49,7 @@ namespace A3.Arrange
             return mock;
         }
 
-        public ArrangeBuilder<T> Sut(Func<Type, ConstructorInfo?> selector)
+        public ArrangeBuilder<T> Constructor(Func<Type, ConstructorInfo?> selector)
         {
             _ = selector ?? throw new ArgumentNullException(nameof(selector));
             factory.Add(context => ArrangeSutFactory<T>.Create(context, selector(typeof(T))));

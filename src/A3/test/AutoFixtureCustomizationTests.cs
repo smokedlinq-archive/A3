@@ -2,7 +2,7 @@
 using FluentAssertions;
 using Xunit;
 
-namespace A3.Tests.Fixtures
+namespace A3.Tests
 {
     public class AutoFixtureCustomizationTests
     {

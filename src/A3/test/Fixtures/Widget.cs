@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace A3.Tests
+namespace A3.Tests.Fixtures
 {
     public class Widget : WidgetBase
     {

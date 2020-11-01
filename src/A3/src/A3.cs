@@ -21,5 +21,8 @@ namespace A3
 
         public static ArrangeStep<T> Sut(Func<ArrangeContext, T> factory, A3Options? options = null)
             => new ArrangeStep<T>(factory, ArrangeOptions.From(options ?? new A3Options()));
+
+        public static ArrangeStep<T> Sut(T sut, A3Options? options = null)
+            => new ArrangeStep<T>(_ => sut, ArrangeOptions.From(options ?? new A3Options()));
     }
 }

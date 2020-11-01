@@ -102,7 +102,7 @@ namespace AutoFixture
             var typesThatAreNotAbstract = types.Where(x => !x.IsAbstract && x.IsClass);
             var typesThatImplementICustomizeFixture = typesThatAreNotAbstract.Where(x => x.GetInterfaces().Any(i =>
             {
-                if (type.IsGenericType)
+                if (type.IsGenericType && type.IsGenericTypeDefinition)
                 {
                     return i.IsGenericType && i.GetGenericTypeDefinition() == type;
                 }
