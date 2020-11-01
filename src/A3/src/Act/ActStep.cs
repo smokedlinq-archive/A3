@@ -21,57 +21,73 @@ namespace A3.Act
             this.mocks = mocks ?? throw new ArgumentNullException(nameof(mocks));
         }
 
-        public AssertResultStep<TResult> Act<TParameter, TResult>(Func<T, TParameter, TResult> act)
+        public AssertResultStep<T, TResult> Act<TParameter, TResult>(Func<T, TParameter, TResult> act)
         {
             _ = act ?? throw new ArgumentNullException(nameof(act));
-            return new AssertResultStep<TResult>(ActInternal(act), mocks);
+            var result = ActInternal(act, out var sut);
+            return new AssertResultStep<T, TResult>(sut, result, mocks);
         }
 
-        public AssertResultStep<TResult> Act<TResult>(Func<T, TResult> act)
-            => new AssertResultStep<TResult>(ActInternal(act), mocks);
+        public AssertResultStep<T, TResult> Act<TResult>(Func<T, TResult> act)
+        {
+            var result = ActInternal(act, out var sut);
+            return new AssertResultStep<T, TResult>(sut, result, mocks);
+        }
 
-        public AssertStep Act<TParameter>(Action<T, TParameter> act)
+        public AssertStep<T> Act<TParameter>(Action<T, TParameter> act)
         {
             _ = act ?? throw new ArgumentNullException(nameof(act));
-            return ActInternal<TParameter, AssertStep>((sut, parameter) =>
+            return ActInternal<TParameter, AssertStep<T>>((sut, parameter) =>
             {
                 act(sut, parameter);
-                return new AssertStep(mocks);
-            });
+                return new AssertStep<T>(sut, mocks);
+            }, out var _);
         }
 
-        public AssertStep Act(Action<T> act)
+        public AssertStep<T> Act(Action<T> act)
         {
             _ = act ?? throw new ArgumentNullException(nameof(act));
             return ActInternal(sut =>
             {
                 act(sut);
-                return new AssertStep(mocks);
-            });
+                return new AssertStep<T>(sut, mocks);
+            }, out var _);
         }
 
-        public AsyncAssertResultStep<TResult> Act<TParameter, TResult>(Func<T, TParameter, Task<TResult>> act)
-            => new AsyncAssertResultStep<TResult>(ActInternal(act), mocks);
+        public AsyncAssertResultStep<T, TResult> Act<TParameter, TResult>(Func<T, TParameter, Task<TResult>> act)
+        {
+            var result = ActInternal(act, out var sut);
+            return new AsyncAssertResultStep<T, TResult>(result, sut, mocks);
+        }
 
-        public AsyncAssertResultStep<TResult> Act<TResult>(Func<T, Task<TResult>> act)
-            => new AsyncAssertResultStep<TResult>(ActInternal(act), mocks);
+        public AsyncAssertResultStep<T, TResult> Act<TResult>(Func<T, Task<TResult>> act)
+        {
+            var result = ActInternal(act, out var sut);
+            return new AsyncAssertResultStep<T, TResult>(result, sut, mocks);
+        }
 
-        public AsyncAssertStep Act<TParameter>(Func<T, TParameter, Task> act)
-            => new AsyncAssertStep(ActInternal(act), mocks);
+        public AsyncAssertStep<T> Act<TParameter>(Func<T, TParameter, Task> act)
+        {
+            var result = ActInternal(act, out var sut);
+            return new AsyncAssertStep<T>(result, sut, mocks);
+        }
 
-        public AsyncAssertStep Act(Func<T, Task> act)
-            => new AsyncAssertStep(ActInternal(act), mocks);
+        public AsyncAssertStep<T> Act(Func<T, Task> act)
+        {
+            var result = ActInternal(act, out var sut);
+            return new AsyncAssertStep<T>(result, sut, mocks);
+        }
 
-        private TResult ActInternal<TResult>(Func<T, TResult> act)
-            => ActInternal<object, TResult>((sut, _) => act(sut));
+        private TResult ActInternal<TResult>(Func<T, TResult> act, out T sut)
+            => ActInternal<object, TResult>((sut, _) => act(sut), out sut);
 
-        private TResult ActInternal<TParameter, TResult>(Func<T, TParameter, TResult> act)
+        private TResult ActInternal<TParameter, TResult>(Func<T, TParameter, TResult> act, out T sut)
         {
             _ = act ?? throw new ArgumentNullException(nameof(act));
 
             try
             {
-                var sut = CreateSut();
+                sut = CreateSut();
                 return act(sut, (TParameter)parameter?.Value!);
             }
             catch (ArrangeException)

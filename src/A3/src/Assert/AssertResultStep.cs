@@ -5,27 +5,27 @@ using System.Threading.Tasks;
 
 namespace A3.Assert
 {
-    public class AssertResultStep<T>
+    public class AssertResultStep<TSut, TResult>
     {
-        private readonly T result;
-        private readonly AssertContext context;
+        private readonly TResult result;
+        private readonly AssertContext<TSut> context;
 
-        internal AssertResultStep(T result, IEnumerable<Mock> mocks)
+        internal AssertResultStep(TSut sut, TResult result, IEnumerable<Mock> mocks)
         {
             this.result = result;
-            this.context = new AssertContext(mocks);
+            this.context = new AssertContext<TSut>(sut, mocks);
         }
 
-        public void Assert(Action<T> assert)
+        public void Assert(Action<TResult> assert)
             => assert(result);
 
-        public Task Assert(Func<T, Task> assert)
+        public Task Assert(Func<TResult, Task> assert)
             => assert(result);
 
-        public void Assert(Action<T, AssertContext> assert)
+        public void Assert(Action<TResult, AssertContext<TSut>> assert)
             => assert(result, context);
 
-        public Task Assert(Func<T, AssertContext, Task> assert)
+        public Task Assert(Func<TResult, AssertContext<TSut>, Task> assert)
             => assert(result, context);
     }
 }

@@ -23,12 +23,12 @@ namespace A3.Arrange
 
         public IFixture Fixture { get; }
 
-        public ArrangeBuilder<T> Mock<TMock>(Action<Mock<TMock>> setup)
+        public Mock<TMock> Mock<TMock>(Action<Mock<TMock>> setup)
             where TMock : class
         {
             var mock = GetOrAddMock<TMock>();
             setup(mock);
-            return this;
+            return mock;
         }
 
         public Mock<TMock> Mock<TMock>()

@@ -5,18 +5,18 @@ using System.Threading.Tasks;
 
 namespace A3.Assert
 {
-    public class AsyncAssertStep
+    public class AsyncAssertStep<T>
     {
         private readonly Task task;
-        private readonly AssertContext context;
+        private readonly AssertContext<T> context;
 
-        internal AsyncAssertStep(Task task, IEnumerable<Mock> mocks)
+        internal AsyncAssertStep(Task task, T sut, IEnumerable<Mock> mocks)
         {
-            this.task = task ?? throw new System.ArgumentNullException(nameof(task));
-            context = new AssertContext(mocks);
+            this.task = task ?? throw new ArgumentNullException(nameof(task));
+            context = new AssertContext<T>(sut, mocks);
         }
 
-        public async Task Assert(Action<AssertContext> assert)
+        public async Task Assert(Action<AssertContext<T>> assert)
         {
             await task.ConfigureAwait(false);
             assert(context);
