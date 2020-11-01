@@ -2,10 +2,20 @@
 
 ![Build](https://github.com/smokedlinq/A3/workflows/Build/badge.svg)
 [![SonarCloud Status](https://sonarcloud.io/api/project_badges/measure?project=smokedlinq_A3&metric=alert_status)](https://sonarcloud.io/dashboard?id=smokedlinq_A3)
+
+## A3
+
 [![NuGet](https://img.shields.io/nuget/dt/A3.svg)](https://www.nuget.org/packages/A3)
 [![NuGet](https://img.shields.io/nuget/vpre/A3.svg)](https://www.nuget.org/packages/A3)
 
 A3 leverages [Moq](https://github.com/moq/moq4), [AutoFixture](https://github.com/AutoFixture/AutoFixture), and [FluentAssertions](https://github.com/fluentassertions/fluentassertions/) to make .NET unit testing with the arrange, act, assert pattern with easier and fun by reducing a lot of the overhead with setting up unit tests.
+
+## A3.Xunit
+
+[![NuGet](https://img.shields.io/nuget/dt/A3.Xunit.svg)](https://www.nuget.org/packages/A3.Xunit)
+[![NuGet](https://img.shields.io/nuget/vpre/A3.Xunit.svg)](https://www.nuget.org/packages/A3.Xunit)
+
+A3.Xunit leverages AutoFixture.Xunit2 to provide theory data via the A3 fixture customizations.
 
 ## Getting started
 
