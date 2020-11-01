@@ -1,10 +1,12 @@
 using A3.Tests.Fixtures;
+using AutoFixture;
 using FluentAssertions;
 using System.Reflection;
 using Xunit;
 
 namespace A3.Tests
 {
+    [A3Scope(nameof(A3TestsFixtureCustomization))]
     public class A3Tests
     {
         [Fact]
@@ -30,5 +32,38 @@ namespace A3.Tests
             .Arrange(setup => { })
             .Act(sut => sut.Name)
             .Assert((result, context) => result.Should().NotBeNullOrEmpty());
+
+        [Fact]
+        [A3Scope(nameof(A3TestMethodFixtureCustomization))]
+        public void UsesScopeFromA3ScopeAttributeOnMethodOverClass()
+            => A3<string>
+            .Arrange(setup => setup.Sut(setup.Fixture.Create<string>()))
+            .Act(sut => sut)
+            .Assert(result => result.Should().Be(nameof(A3TestMethodFixtureCustomization)));
+
+        [Fact]
+        public void UsesScopeFromA3ScopeAttributeOnClass()
+            => A3<string>
+            .Arrange(setup => setup.Sut(setup.Fixture.Create<string>()))
+            .Act(sut => sut)
+            .Assert(result => result.Should().Be(nameof(A3TestsFixtureCustomization)));
+
+        public class A3TestMethodFixtureCustomization : ICustomizeFixture<string>
+        {
+            public bool ShouldCustomize(string? scope)
+                => scope == nameof(A3TestMethodFixtureCustomization);
+
+            public string Customize(IFixture fixture)
+                => nameof(A3TestMethodFixtureCustomization);
+        }
+
+        public class A3TestsFixtureCustomization : ICustomizeFixture<string>
+        {
+            public bool ShouldCustomize(string? scope)
+                => scope == nameof(A3TestsFixtureCustomization);
+
+            public string Customize(IFixture fixture)
+                => nameof(A3TestsFixtureCustomization);
+        }
     }
 }
