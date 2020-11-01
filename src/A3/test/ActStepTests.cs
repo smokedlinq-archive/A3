@@ -11,28 +11,28 @@ namespace A3.Tests
     {
         [Fact]
         public void WhenTIsInterfaceAndSutIsExplicitlyDefinedInArrangeThenActDoesNotThrow()
-            => A3<ActStep<IWidget>>
+            => A3<ActStep<IWidget, object>>
             .Arrange(setup => setup.Sut(A3<IWidget>.Arrange(setup => setup.Sut(_ => new Widget()))))
             .Act(sut => sut.Invoking(x => x.Act(_ => { })))
             .Assert(result => result.Should().NotThrow());
 
         [Fact]
         public void WhenTIsInterfaceAndSutIsNotExplicitedDefinedInArrangeThenActShouldThrowArrangeException()
-            => A3<ActStep<IWidget>>
+            => A3<ActStep<IWidget, object>>
             .Arrange(setup => setup.Sut(A3<IWidget>.Arrange(setup => { })))
             .Act(sut => sut.Invoking(x => x.Act(_ => { })))
             .Assert(result => result.Should().Throw<ArrangeException>());
 
         [Fact]
         public void WhenTIsAbstractAndSutIsExplicitlyDefinedInArrangeThenActDoesNotThrow()
-            => A3<ActStep<WidgetBase>>
+            => A3<ActStep<WidgetBase, object>>
             .Arrange(setup => setup.Sut(A3<WidgetBase>.Arrange(setup => setup.Sut(_ => new Widget()))))
             .Act(sut => sut.Invoking(x => x.Act(_ => { })))
             .Assert(result => result.Should().NotThrow());
 
         [Fact]
         public void WhenTIsAbstractAndSutIsNotExplicitedDefinedInArrangeThenActShouldThrowArrangeException()
-            => A3<ActStep<WidgetBase>>
+            => A3<ActStep<WidgetBase, object>>
             .Arrange(setup => setup.Sut(A3<WidgetBase>.Arrange(setup => { })))
             .Act(sut => sut.Invoking(x => x.Act(_ => { })))
             .Assert(result => result.Should().Throw<ArrangeException>());

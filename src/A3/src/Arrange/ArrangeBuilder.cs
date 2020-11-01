@@ -8,17 +8,16 @@ using System.Reflection;
 
 namespace A3.Arrange
 {
-    public sealed class ArrangeBuilder<T>
-        where T : class
+    public sealed class ArrangeBuilder<TSut, TParameter>
     {
-        private readonly List<Func<ArrangeContext, T>> factory = new List<Func<ArrangeContext, T>>();
+        private readonly List<Func<ArrangeContext, TSut>> factory = new List<Func<ArrangeContext, TSut>>();
         private readonly List<Mock> mocks = new List<Mock>();
-        private readonly List<SutParameter> parameter = new List<SutParameter>();
+        private readonly List<TParameter> parameter = new List<TParameter>();
 
-        internal ArrangeBuilder(Func<ArrangeContext, T> factory, ArrangeOptions options)
+        internal ArrangeBuilder(Func<ArrangeContext, TSut> factory, ArrangeOptions options)
         {
             this.factory.Add(factory);
-            Fixture = new Fixture().Customize(new AutoFixtureCustomization(scope: options.AutoFixtureCustomizationScope));
+            Fixture = new Fixture().Customize(new AutoFixtureCustomization(options.Scope));
         }
 
         public IFixture Fixture { get; }
@@ -49,41 +48,46 @@ namespace A3.Arrange
             return mock;
         }
 
-        public ArrangeBuilder<T> Constructor(Func<Type, ConstructorInfo?> selector)
+        public ArrangeBuilder<TSut, TParameter> Constructor(Func<Type, ConstructorInfo?> selector)
         {
             _ = selector ?? throw new ArgumentNullException(nameof(selector));
-            factory.Add(context => ArrangeSutFactory<T>.Create(context, selector(typeof(T))));
+            factory.Add(context => ArrangeSutFactory<TSut>.Create(context, selector(typeof(TSut))));
             return this;
         }
 
-        public ArrangeBuilder<T> Sut(Func<ArrangeContext, T> factory)
+        public ArrangeBuilder<TSut, TParameter> Sut(Func<ArrangeContext, TSut> factory)
         {
             _ = factory ?? throw new ArgumentNullException(nameof(factory));
             this.factory.Add(factory);
             return this;
         }
 
-        public ArrangeBuilder<T> Sut(Func<T> factory)
+        public ArrangeBuilder<TSut, TParameter> Sut(Func<TSut> factory)
         {
             _ = factory ?? throw new ArgumentNullException(nameof(factory));
             this.factory.Add(_ => factory());
             return this;
         }
 
-        public ArrangeBuilder<T> Sut(T sut)
+        public ArrangeBuilder<TSut, TParameter> Sut(TSut sut)
         {
             _ = sut ?? throw new ArgumentNullException(nameof(sut));
-            this.factory.Add(_ => sut);
+            factory.Add(_ => sut);
             return this;
         }
 
-        public ArrangeBuilder<T> Parameter<TParameter>(TParameter parameter)
+        public TSpecificParameter Parameter<TSpecificParameter>(TSpecificParameter parameter)
         {
-            this.parameter.Add(new SutParameter(typeof(TParameter), parameter));
-            return this;
+            if (typeof(TParameter) != typeof(TSpecificParameter) && !typeof(TParameter).IsAssignableFrom(typeof(TSpecificParameter)))
+            {
+                throw new ArrangeException($"The specified parameter type {typeof(TSpecificParameter)} value cannot be used with parameters of type {typeof(TParameter)}.");
+            }
+
+            this.parameter.Add((TParameter)(object)parameter!);
+            return parameter;
         }
 
-        internal ActStep<T> Build()
-            => new ActStep<T>(() => factory.Last().Invoke(new ArrangeContext(Fixture, mocks)), parameter.LastOrDefault(), mocks);
+        internal ActStep<TSut, TParameter> Build()
+            => new ActStep<TSut, TParameter>(() => factory.Last().Invoke(new ArrangeContext(Fixture, mocks)), parameter.LastOrDefault(), mocks);
     }
 }

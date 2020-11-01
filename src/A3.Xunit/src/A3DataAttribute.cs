@@ -3,9 +3,9 @@ using AutoFixture.Xunit2;
 
 namespace Xunit
 {
-    public class AutoFixtureDataAttribute : AutoDataAttribute
+    public class A3DataAttribute : AutoDataAttribute
     {
-        public AutoFixtureDataAttribute(string? scope = null)
+        public A3DataAttribute(string? scope = null)
             : base(() => Customize(new Fixture(), scope))
         {
         }

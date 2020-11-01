@@ -4,10 +4,10 @@ using Xunit;
 
 namespace A3.Xunit.Tests
 {
-    public class AutoFixtureDataAttributeTests
+    public class A3DataAttributeTests
     {
         [Theory]
-        [AutoFixtureData]
+        [A3Data]
         public void AutoFixtureDataAttributeUsesAutoFixtureCustomization(string value)
             => A3<string>
             .Arrange(setup => setup.Sut(_ => value))

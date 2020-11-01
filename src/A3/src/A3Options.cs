@@ -1,12 +1,17 @@
-﻿using System;
+﻿using A3.Arrange;
+using System;
 
 namespace A3
 {
     public class A3Options
     {
-        public string? AutoFixtureCustomizationScope { get; set; }
+        internal ArrangeOptions Arrange { get; } = new ArrangeOptions();
 
-        public static A3Options WithAutoFixtureCustomizationScope(string scope)
-            => new A3Options { AutoFixtureCustomizationScope = scope ?? throw new ArgumentNullException(nameof(scope)) };
+        public static A3Options Scope(string scope)
+        {
+            var options = new A3Options();
+            options.Arrange.Scope = scope ?? throw new ArgumentNullException(nameof(scope));
+            return options;
+        }
     }
 }

@@ -6,7 +6,6 @@ using System.Reflection;
 namespace A3.Arrange
 {
     internal static class ArrangeSutFactory<T>
-        where T : class
     {
         public static T Create(ArrangeContext context, ConstructorInfo? constructor)
         {
@@ -20,7 +19,7 @@ namespace A3.Arrange
             {
                 var ctorParameter = parameters[i];
 
-                if (context.TryGetMock(ctorParameter.ParameterType, out var mock))
+                if (typeof(T).IsClass && context.TryGetMock(ctorParameter.ParameterType, out var mock))
                 {
                     args[i] = mock.Object;
                 }

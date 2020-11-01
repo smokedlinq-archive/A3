@@ -7,88 +7,116 @@ using System.Threading.Tasks;
 
 namespace A3.Act
 {
-    public sealed class ActStep<T>
-        where T : class
+    public sealed class ActStep<TSut, TParameter>
     {
-        private readonly Func<T> factory;
-        private readonly SutParameter? parameter;
+        private readonly Func<TSut> factory;
+        private readonly TParameter parameter;
         private readonly IEnumerable<Mock> mocks;
 
-        internal ActStep(Func<T> factory, SutParameter? parameter, IEnumerable<Mock> mocks)
+        internal ActStep(Func<TSut> factory, TParameter parameter, IEnumerable<Mock> mocks)
         {
             this.factory = factory ?? throw new ArgumentNullException(nameof(factory));
             this.parameter = parameter;
             this.mocks = mocks ?? throw new ArgumentNullException(nameof(mocks));
         }
 
-        public AssertResultStep<T, TResult> Act<TParameter, TResult>(Func<T, TParameter, TResult> act)
+        public AssertResultStep<TSut, TResult> Act<TResult>(Func<TSut, TParameter, TResult> act)
         {
             _ = act ?? throw new ArgumentNullException(nameof(act));
             var result = ActInternal(act, out var sut);
-            return new AssertResultStep<T, TResult>(sut, result, mocks);
+            return new AssertResultStep<TSut, TResult>(sut, result, mocks);
         }
 
-        public AssertResultStep<T, TResult> Act<TResult>(Func<T, TResult> act)
-        {
-            var result = ActInternal(act, out var sut);
-            return new AssertResultStep<T, TResult>(sut, result, mocks);
-        }
-
-        public AssertStep<T> Act<TParameter>(Action<T, TParameter> act)
+        public AssertResultStep<TSut, TResult> Act<TResult, TSpecificParameter>(Func<TSut, TSpecificParameter, TResult> act)
         {
             _ = act ?? throw new ArgumentNullException(nameof(act));
-            return ActInternal<TParameter, AssertStep<T>>((sut, parameter) =>
+            var result = ActInternal((sut, parameter) => act(sut, (TSpecificParameter)(object)parameter!), out var sut);
+            return new AssertResultStep<TSut, TResult>(sut, result, mocks);
+        }
+
+        public AssertResultStep<TSut, TResult> Act<TResult>(Func<TSut, TResult> act)
+        {
+            var result = ActInternal(act, out var sut);
+            return new AssertResultStep<TSut, TResult>(sut, result, mocks);
+        }
+
+        public AssertStep<TSut> Act(Action<TSut, TParameter> act)
+        {
+            _ = act ?? throw new ArgumentNullException(nameof(act));
+            return ActInternal((sut, parameter) =>
             {
                 act(sut, parameter);
-                return new AssertStep<T>(sut, mocks);
+                return new AssertStep<TSut>(sut, mocks);
             }, out var _);
         }
 
-        public AssertStep<T> Act(Action<T> act)
+        public AssertStep<TSut> Act<TSpecificParameter>(Action<TSut, TSpecificParameter> act)
+        {
+            _ = act ?? throw new ArgumentNullException(nameof(act));
+            return ActInternal((sut, parameter) =>
+            {
+                act(sut, (TSpecificParameter)(object?)parameter!);
+                return new AssertStep<TSut>(sut, mocks);
+            }, out var _);
+        }
+
+        public AssertStep<TSut> Act(Action<TSut> act)
         {
             _ = act ?? throw new ArgumentNullException(nameof(act));
             return ActInternal(sut =>
             {
                 act(sut);
-                return new AssertStep<T>(sut, mocks);
+                return new AssertStep<TSut>(sut, mocks);
             }, out var _);
         }
 
-        public AsyncAssertResultStep<T, TResult> Act<TParameter, TResult>(Func<T, TParameter, Task<TResult>> act)
+        public AsyncAssertResultStep<TSut, TResult> Act<TResult>(Func<TSut, TParameter, Task<TResult>> act)
         {
             var result = ActInternal(act, out var sut);
-            return new AsyncAssertResultStep<T, TResult>(result, sut, mocks);
+            return new AsyncAssertResultStep<TSut, TResult>(result, sut, mocks);
         }
 
-        public AsyncAssertResultStep<T, TResult> Act<TResult>(Func<T, Task<TResult>> act)
+        public AsyncAssertResultStep<TSut, TResult> Act<TSpecificParameter, TResult>(Func<TSut, TSpecificParameter, Task<TResult>> act)
+        {
+            var result = ActInternal((sut, parameter) => act(sut, (TSpecificParameter)(object)parameter!), out var sut);
+            return new AsyncAssertResultStep<TSut, TResult>(result, sut, mocks);
+        }
+
+        public AsyncAssertResultStep<TSut, TResult> Act<TResult>(Func<TSut, Task<TResult>> act)
         {
             var result = ActInternal(act, out var sut);
-            return new AsyncAssertResultStep<T, TResult>(result, sut, mocks);
+            return new AsyncAssertResultStep<TSut, TResult>(result, sut, mocks);
         }
 
-        public AsyncAssertStep<T> Act<TParameter>(Func<T, TParameter, Task> act)
+        public AsyncAssertStep<TSut> Act(Func<TSut, TParameter, Task> act)
         {
             var result = ActInternal(act, out var sut);
-            return new AsyncAssertStep<T>(result, sut, mocks);
+            return new AsyncAssertStep<TSut>(result, sut, mocks);
         }
 
-        public AsyncAssertStep<T> Act(Func<T, Task> act)
+        public AsyncAssertStep<TSut> Act<TSpecificParameter>(Func<TSut, TSpecificParameter, Task> act)
+        {
+            var result = ActInternal((sut, parameter) => act(sut, (TSpecificParameter)(object)parameter!), out var sut);
+            return new AsyncAssertStep<TSut>(result, sut, mocks);
+        }
+
+        public AsyncAssertStep<TSut> Act(Func<TSut, Task> act)
         {
             var result = ActInternal(act, out var sut);
-            return new AsyncAssertStep<T>(result, sut, mocks);
+            return new AsyncAssertStep<TSut>(result, sut, mocks);
         }
 
-        private TResult ActInternal<TResult>(Func<T, TResult> act, out T sut)
-            => ActInternal<object, TResult>((sut, _) => act(sut), out sut);
+        private TResult ActInternal<TResult>(Func<TSut, TResult> act, out TSut sut)
+            => ActInternal((sut, _) => act(sut), out sut);
 
-        private TResult ActInternal<TParameter, TResult>(Func<T, TParameter, TResult> act, out T sut)
+        private TResult ActInternal<TResult>(Func<TSut, TParameter, TResult> act, out TSut sut)
         {
             _ = act ?? throw new ArgumentNullException(nameof(act));
 
             try
             {
                 sut = CreateSut();
-                return act(sut, (TParameter)parameter?.Value!);
+                return act(sut, parameter);
             }
             catch (ArrangeException)
             {
@@ -103,7 +131,7 @@ namespace A3.Act
                 throw new ActException($"Act step failed with exception {ex.GetType()}.", ex);
             }
 
-            T CreateSut()
+            TSut CreateSut()
             {
                 try
                 {

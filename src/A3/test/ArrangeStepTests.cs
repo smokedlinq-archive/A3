@@ -24,7 +24,7 @@ namespace A3.Tests
         [Fact]
         public void CanSpecifySutWithFactory()
             => A3<Widget>
-            .Arrange(setup => setup.Sut(() => new Widget()))
+            .Arrange(setup => setup.Sut(new Widget()))
             .Act(sut => sut)
             .Assert(result => result.Should().NotBeNull());
 
@@ -67,10 +67,24 @@ namespace A3.Tests
             .Assert(context => true.Should().BeTrue());
 
         [Fact]
+        public void CanPassParameterToActFromReturnValue()
+            => A3<Widget>
+            .Arrange<string>(_ => nameof(Widget))
+            .Act((sut, parameter) => { parameter.Should().NotBeNullOrEmpty(); })
+            .Assert(context => true.Should().BeTrue());
+
+        [Fact]
         public void CanPassParameterToActWithResult()
             => A3<Widget>
             .Arrange(setup => setup.Parameter(nameof(Widget)))
             .Act((Widget sut, string parameter) => sut.Name == parameter)
+            .Assert(result => result.Should().BeTrue());
+
+        [Fact]
+        public void CanPassParameterFromReturnValueToActWithResult()
+            => A3<Widget>
+            .Arrange<string>(_ => nameof(Widget))
+            .Act((sut, parameter) => sut.Name == parameter)
             .Assert(result => result.Should().BeTrue());
 
         [Fact]
@@ -81,10 +95,24 @@ namespace A3.Tests
             .Assert(context => Task.CompletedTask);
 
         [Fact]
+        public Task CanPassParameterFromReturnValueToActAsync()
+            => A3<Widget>
+            .Arrange<string>(_ => nameof(Widget))
+            .Act((sut, parameter) => Task.FromResult(parameter.Should().NotBeNullOrEmpty()))
+            .Assert(context => Task.CompletedTask);
+
+        [Fact]
         public Task CanPassParameterToActWithResultAsync()
             => A3<Widget>
             .Arrange(setup => setup.Parameter(nameof(Widget)))
             .Act((Widget sut, string parameter) => Task.FromResult(sut.Name == parameter))
+            .Assert(result => result.Should().BeTrue());
+
+        [Fact]
+        public Task CanPassParameterWithReturnValueToActWithResultAsync()
+            => A3<Widget>
+            .Arrange<string>(_ => nameof(Widget))
+            .Act((sut, parameter) => Task.FromResult(sut.Name == parameter))
             .Assert(result => result.Should().BeTrue());
 
         [Theory]
@@ -104,14 +132,14 @@ namespace A3.Tests
 
         [Fact]
         public void WhenTIsInterfaceArrangeDoesNotThrow()
-            => A3<Func<ActStep<IWidget>>>
+            => A3<Func<ActStep<IWidget, object>>>
             .Arrange(setup => setup.Sut(this.Invoking(_ => A3<IWidget>.Arrange(setup => { }))))
             .Act(sut => sut)
             .Assert(result => result.Should().NotThrow());
 
         [Fact]
         public void WhenTIsAbstractArrangeDoesNotThrow()
-            => A3<Func<ActStep<WidgetBase>>>
+            => A3<Func<ActStep<WidgetBase, object>>>
             .Arrange(setup => setup.Sut(this.Invoking(_ => A3<WidgetBase>.Arrange(setup => { }))))
             .Act(sut => sut)
             .Assert(result => result.Should().NotThrow());
