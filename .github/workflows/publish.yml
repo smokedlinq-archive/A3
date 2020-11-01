@@ -1,7 +1,12 @@
 name: Publish
+
 on:
   push:
     tags: [ 'v*' ]
+
+env:
+  DOTNET_NOLOGO: true
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
 
 jobs:
   publish:
@@ -26,6 +31,7 @@ jobs:
         cd ./publish
         dotnet nuget push "*.nupkg" -k ${{ secrets.NUGET_KEY }} -s https://api.nuget.org/v3/index.json --skip-duplicate
         dotnet nuget push "*.nupkg" -s https://nuget.pkg.github.com/${{ github.repository_owner }} --skip-duplicate --no-symbols true --api-key ${{ secrets.GITHUB_TOKEN }}
+
     - name: Create release
       uses: actions/create-release@master
       env:

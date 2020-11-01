@@ -1,9 +1,14 @@
 name: Build
+
 on:
   push:
     branches: [ master ]
   pull_request:
     types: [opened, synchronize, reopened]
+
+env:
+  DOTNET_NOLOGO: true
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
 
 jobs:
   build:
@@ -66,4 +71,3 @@ jobs:
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v1
-    
