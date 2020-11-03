@@ -60,6 +60,13 @@ namespace A3.Tests
             .Assert(result => result.Should().Throw<Exception>());
 
         [Fact]
+        public void CanSetupCustomMock()
+            => A3<Widget>
+            .Arrange(setup => setup.Mock(new Mock<Widget>()))
+            .Act(sut => { })
+            .Assert(context => context.Mock<Widget>().Should().NotBeNull());
+
+        [Fact]
         public void CanPassParameterToAct()
             => A3<Widget>
             .Arrange(setup => setup.Parameter(nameof(Widget)))

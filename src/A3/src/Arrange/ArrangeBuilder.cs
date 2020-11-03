@@ -30,6 +30,20 @@ namespace A3.Arrange
             return mock;
         }
 
+        public Mock<TMock> Mock<TMock>(Mock<TMock> mock)
+            where TMock : class
+        {
+            var existing = mocks.FirstOrDefault(x => x is Mock<TMock>);
+
+            if (!(existing is null))
+            {
+                mocks.Remove(existing);
+            }
+
+            mocks.Add(mock);
+            return mock;
+        }
+
         public Mock<TMock> Mock<TMock>()
             where TMock : class
             => GetOrAddMock<TMock>();
