@@ -19,6 +19,13 @@ namespace A3.Tests
             .Assert(result => result.Should().BeFalse());
 
         [Fact]
+        public void FailedAssertThrowsException()
+            => A3<Widget>
+            .Arrange(setup => { })
+            .Act(sut => this.Invoking(_ => A3<Widget>.Arrange(_ => { }).Act(_ => true).Assert(result => result.Should().BeFalse())))
+            .Assert(result => result.Should().Throw<Exception>());
+
+        [Fact]
         public void CanAssertMockThatIsUnconfigured()
             => A3<WidgetService>
             .Arrange(setup => setup.Mock<WidgetFactory>())
@@ -41,6 +48,13 @@ namespace A3.Tests
             .Arrange(setup => setup.Mock<WidgetFactory>(m => m.Setup(x => x.Create(It.IsAny<string>(), It.IsAny<Widget>())).Returns(new Widget())))
             .Act(sut => sut.ExecuteAsync())
             .Assert(result => result.Should().BeFalse());
+
+        [Fact]
+        public Task FailedAssertThrowsExceptionAsync()
+            => A3<Widget>
+            .Arrange(setup => { })
+            .Act(sut => Task.FromResult(this.Invoking(_ => A3<Widget>.Arrange(_ => { }).Act(_ => true).Assert(result => result.Should().BeFalse()))))
+            .Assert(result => result.Should().Throw<Exception>());
 
         [Fact]
         public Task CanAssertMockAsync()
