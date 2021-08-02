@@ -10,9 +10,9 @@ namespace A3.Arrange
 {
     public sealed class ArrangeBuilder<TSut, TParameter>
     {
-        private readonly List<Func<ArrangeContext, TSut>> factory = new List<Func<ArrangeContext, TSut>>();
-        private readonly List<Mock> mocks = new List<Mock>();
-        private readonly List<TParameter> parameter = new List<TParameter>();
+        private readonly List<Func<ArrangeContext, TSut>> factory = new();
+        private readonly List<Mock> mocks = new();
+        private readonly List<TParameter> parameter = new();
 
         internal ArrangeBuilder(Func<ArrangeContext, TSut> factory, ArrangeOptions options)
         {
@@ -51,7 +51,7 @@ namespace A3.Arrange
         private Mock<TMock> GetOrAddMock<TMock>()
             where TMock : class
         {
-            var mock = (Mock<TMock>)mocks.FirstOrDefault(x => x is Mock<TMock>);
+            var mock = (Mock<TMock>?)mocks.FirstOrDefault(x => x is Mock<TMock>);
 
             if (mock is null)
             {
@@ -102,6 +102,6 @@ namespace A3.Arrange
         }
 
         internal ActStep<TSut, TParameter> Build()
-            => new ActStep<TSut, TParameter>(() => factory.Last().Invoke(new ArrangeContext(Fixture, mocks)), parameter.LastOrDefault(), mocks);
+            => new(() => factory.Last().Invoke(new ArrangeContext(Fixture, mocks)), parameter.LastOrDefault(), mocks);
     }
 }

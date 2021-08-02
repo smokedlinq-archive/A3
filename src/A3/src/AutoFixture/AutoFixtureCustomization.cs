@@ -7,7 +7,7 @@ namespace AutoFixture
 {
     public class AutoFixtureCustomization : ICustomization
     {
-        private static readonly Lazy<IEnumerable<Action<IFixture, string?>>> Customizations = new Lazy<IEnumerable<Action<IFixture, string?>>>(CreateCustomizeExpressions);
+        private static readonly Lazy<IEnumerable<Action<IFixture, string?>>> Customizations = new(CreateCustomizeExpressions);
         private readonly string? scope;
 
         public AutoFixtureCustomization(string? scope = null)

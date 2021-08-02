@@ -29,13 +29,13 @@ namespace AutoFixture
                 foreach (var fixtureType in customizer.FixtureTypes)
                 {
                     var customizeFixtureType = typeof(ICustomizeFixture<>).MakeGenericType(fixtureType);
-                    var cutomizeMethod = customizeFixtureType.GetMethod(nameof(ICustomizeFixture<object>.Customize));
+                    var cutomizeMethod = customizeFixtureType.GetMethod(nameof(ICustomizeFixture<object>.Customize))!;
 
                     var call = Expression.Call(instance, cutomizeMethod, fixtureParameter);
 
                     var registerFixture = Expression.Call(registerFixtureMethod.MakeGenericMethod(fixtureType), fixtureParameter, call);
 
-                    var shouldCustomizeMethod = customizeFixtureType.GetMethod(nameof(ICustomizeFixture<object>.ShouldCustomize));
+                    var shouldCustomizeMethod = customizeFixtureType.GetMethod(nameof(ICustomizeFixture<object>.ShouldCustomize))!;
 
                     var shouldCustomize = Expression.Call(instance, shouldCustomizeMethod, scopeParameter);
 

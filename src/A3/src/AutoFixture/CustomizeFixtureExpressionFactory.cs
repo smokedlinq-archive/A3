@@ -16,11 +16,11 @@ namespace AutoFixture
             {
                 var instance = Expression.New(customizer);
                 var customizerType = typeof(ICustomizeFixture);
-                var cutomizeMethod = customizerType.GetMethod(nameof(ICustomizeFixture.Customize));
+                var cutomizeMethod = customizerType.GetMethod(nameof(ICustomizeFixture.Customize))!;
 
                 var call = Expression.Call(instance, cutomizeMethod, fixtureParameter);
 
-                var shouldCustomizeMethod = customizerType.GetMethod(nameof(ICustomizeFixture.ShouldCustomize));
+                var shouldCustomizeMethod = customizerType.GetMethod(nameof(ICustomizeFixture.ShouldCustomize))!;
 
                 var shouldCustomize = Expression.Call(instance, shouldCustomizeMethod, scopeParameter);
 

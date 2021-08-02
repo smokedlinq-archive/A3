@@ -5,7 +5,7 @@ namespace A3
 {
     public class A3Options
     {
-        internal ArrangeOptions Arrange { get; } = new ArrangeOptions();
+        internal ArrangeOptions Arrange { get; } = new();
 
         public static A3Options Scope(string scope)
         {

@@ -70,7 +70,7 @@ namespace A3.Tests
         public void CanPassParameterToAct()
             => A3<Widget>
             .Arrange(setup => setup.Parameter(nameof(Widget)))
-            .Act((Widget sut, string parameter) => { parameter.Should().NotBeNullOrEmpty(); })
+            .Act((Widget sut, string? parameter) => { parameter.Should().NotBeNullOrEmpty(); })
             .Assert(context => true.Should().BeTrue());
 
         [Fact]
@@ -84,7 +84,7 @@ namespace A3.Tests
         public void CanPassParameterToActWithResult()
             => A3<Widget>
             .Arrange(setup => setup.Parameter(nameof(Widget)))
-            .Act((Widget sut, string parameter) => sut.Name == parameter)
+            .Act((Widget sut, string? parameter) => sut.Name == parameter)
             .Assert(result => result.Should().BeTrue());
 
         [Fact]
@@ -98,7 +98,7 @@ namespace A3.Tests
         public Task CanPassParameterToActAsync()
             => A3<Widget>
             .Arrange(setup => setup.Parameter(nameof(Widget)))
-            .Act((Widget sut, string parameter) => { Task.FromResult(parameter.Should().NotBeNullOrEmpty()); })
+            .Act((Widget sut, string? parameter) => { Task.FromResult(parameter.Should().NotBeNullOrEmpty()); })
             .Assert(context => Task.CompletedTask);
 
         [Fact]
@@ -112,7 +112,7 @@ namespace A3.Tests
         public Task CanPassParameterToActWithResultAsync()
             => A3<Widget>
             .Arrange(setup => setup.Parameter(nameof(Widget)))
-            .Act((Widget sut, string parameter) => Task.FromResult(sut.Name == parameter))
+            .Act((Widget sut, string? parameter) => Task.FromResult(sut.Name == parameter))
             .Assert(result => result.Should().BeTrue());
 
         [Fact]
